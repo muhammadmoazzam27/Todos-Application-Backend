@@ -1,0 +1,29 @@
+const express = require("express");
+const { connectDB } = require("./src/config/db");
+require("dotenv").config();
+
+const cors = require("cors");
+const auth = require("./src/routes/auth");
+
+const app = express();
+
+const PORT = process.env.PORT
+const Auth_API = process.env.Auth_Api
+
+app.use(cors());
+app.use(express.json());
+connectDB();
+
+app.use(`${Auth_API}`, auth)
+
+app.use("/", (req, res) => {
+    res.send("Todos Application");
+})
+
+app.use("/health", (req, res) => {
+    res.send("Server heath is Good");
+})
+
+app.listen(PORT, (req, res) => {
+    console.log(`A server is running on PORT ${PORT}`);
+})
