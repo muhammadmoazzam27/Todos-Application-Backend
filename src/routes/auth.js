@@ -93,13 +93,11 @@ router.get("/user", verifyToken, async (req, res) => {
 
         const uid = req.uid;
 
-        const userFound = await Users.findOne({ uid });
+        const user = await Users.findOne({ uid }).select("-password");
 
-        if (!userFound) {
+        if (!user) {
             return res.status(404).json({ message: "User does not exist", isError: true })
         }
-
-        const user = userFound.select("-password").exe();
 
         return res.status(200).json({ message: "login successful", user, isError: false })
 
