@@ -12,7 +12,7 @@ const todoSchema = new Schema(
         dueDate: { type: String, required: true, trim: true, default: "" },
         description: { type: String, required: true, trim: true },
         imageURL: { type: String, required: true, trim: true },
-        publicId: { type: String, required: true, trim: true },
+        imagePublicId: { type: String, required: true, trim: true },
     },
     { timestamps: true }
 )
