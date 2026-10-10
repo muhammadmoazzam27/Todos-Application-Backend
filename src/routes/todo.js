@@ -2,9 +2,9 @@ const express = require("express");
 const { verifyToken } = require("../middleware/authentication");
 const { randomId } = require("../utils/global");
 
-const multer = require("multer");
 const { cloudinary } = require("../config/cloudinary");
 const { Todos } = require("../models/todo");
+const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
@@ -12,10 +12,8 @@ const router = express.Router();
 
 router.post("/create", verifyToken, upload.fields([{ name: "image" }]), async (req, res) => {
     try {
+        
         const uid = req.uid;
-
-        console.log("File : ", req.files);
-        console.log("Body : ", req.body);
 
         const { title, priority, status, dueDate, description } = req.body;
 
@@ -29,8 +27,8 @@ router.post("/create", verifyToken, upload.fields([{ name: "image" }]), async (r
             await new Promise((resolve, reject) => {
                 const uploadStream = cloudinary.uploader.upload_stream(
                     {
-                        folder: "todos",              // Clean folder name
-                        resource_type: "auto",        // Images & PDFs dono ke liye
+                        folder: "todos",
+                        resource_type: "auto",
                         type: "upload"
                     },
                     (error, result) => {
@@ -55,10 +53,33 @@ router.post("/create", verifyToken, upload.fields([{ name: "image" }]), async (r
 
         return res.status(201).json({ message: "A todo successfully created", todo, isError: false });
 
-    } catch (error) {
+    }
+    catch (error) {
         console.error("Error : ", error);
-        return res.status(500).json({ message: error.message || "Something went wrong", isError: true });
+        return res.status(500).json({ message: "Something went wrong", isError: true });
     }
 });
+
+
+router.get("/get/all/todos", verifyToken, async (req, res) => {
+
+    try {
+
+        const uid = req.uid;
+
+        const allTodos = await Todos.find({ uid });
+
+        console.log("Todos : ", allTodos);
+
+        return res.status(200).json({ message: "Todos fetched successfully", allTodos, isError: false });
+
+
+    }
+    catch (error) {
+        console.error("Error : ", error);
+        return res.status(500).json({ message: "Something went wrong", isError: true });
+    }
+
+})
 
 module.exports = router;
