@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post("/create", verifyToken, upload.fields([{ name: "image" }]), async (req, res) => {
     try {
-        
+
         const uid = req.uid;
 
         const { title, priority, status, dueDate, description } = req.body;
@@ -69,10 +69,58 @@ router.get("/get/all/todos", verifyToken, async (req, res) => {
 
         const allTodos = await Todos.find({ uid });
 
-        console.log("Todos : ", allTodos);
-
         return res.status(200).json({ message: "Todos fetched successfully", allTodos, isError: false });
 
+
+    }
+    catch (error) {
+        console.error("Error : ", error);
+        return res.status(500).json({ message: "Something went wrong", isError: true });
+    }
+
+})
+
+router.patch("/update/single/todo", verifyToken, async (req, res) => {
+    try {
+        const uid = req.uid;
+        // id ko bhi req.body se destructure karein
+        const { id, title, priority, status, dueDate, description } = req.body;
+
+        // Agar dueDate optional rakhni hai toh validation se hata dein, 
+        // ya phir frontend se dueDate bheji jaye.
+        if (!title || !description) {
+            return res.status(400).json({ message: "Title and description are required", isError: true });
+        }
+
+        const todoUpdated = { title, priority, status, dueDate, description };
+
+        // Sahi tarika: Filter ({ id, uid }) aur update data ({ $set: todoUpdated }) dein
+        const todo = await Todos.findOneAndUpdate(
+            { id, uid },
+            { $set: todoUpdated },
+            { new: true }
+        );
+
+        if (!todo) {
+            return res.status(404).json({ message: "Todo not found", isError: true });
+        }
+
+        return res.status(200).json({ message: "Todo successfully updated", todo, isError: false });
+
+    }
+    catch (error) {
+        console.error("Error : ", error);
+        return res.status(500).json({ message: "Something went wrong", isError: true });
+    }
+
+});
+
+
+router.delete("/delete/single/todo", verifyToken, async (req, res) => {
+
+    try {
+
+        const uid = req.uid;
 
     }
     catch (error) {
