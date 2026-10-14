@@ -80,7 +80,7 @@ router.get("/get/all/todos", verifyToken, async (req, res) => {
 
 })
 
-router.patch("/update/single/todo", verifyToken, async (req, res) => {
+router.patch("/edit/single/todo", verifyToken, async (req, res) => {
     try {
         const uid = req.uid;
         // id ko bhi req.body se destructure karein
