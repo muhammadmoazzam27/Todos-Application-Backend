@@ -116,11 +116,23 @@ router.patch("/edit/single/todo", verifyToken, async (req, res) => {
 });
 
 
-router.delete("/delete/single/todo", verifyToken, async (req, res) => {
+router.delete("/delete/single/todo/:id", verifyToken, async (req, res) => {
 
     try {
 
         const uid = req.uid;
+
+        const { id } = req.params;
+
+        const todoFind = await Todos.findOne({ uid, id });
+
+        if (!todoFind) {
+            return res.status(404).json({ message: "Todo not found", isError: true });
+        }
+
+        const deleteTodo = await Todos.findOneAndDelete({ uid, id });
+
+        return res.status(200).json({ message: "Todo deleted successfully", deleteTodo, isError: false })
 
     }
     catch (error) {
