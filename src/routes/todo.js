@@ -4,6 +4,7 @@ const { randomId } = require("../utils/global");
 
 const { cloudinary } = require("../config/cloudinary");
 const { Todos } = require("../models/todo");
+
 const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -46,6 +47,7 @@ router.post("/create", verifyToken, upload.fields([{ name: "image" }]), async (r
         }
 
         const id = randomId();
+
         const todoData = { uid, id, title, priority, status, dueDate, description, imageURL, imagePublicId };
 
         const todo = await Todos.create(todoData);
@@ -82,23 +84,21 @@ router.get("/get/all/todos", verifyToken, async (req, res) => {
 
 router.patch("/edit/single/todo", verifyToken, async (req, res) => {
     try {
+
         const uid = req.uid;
-        // id ko bhi req.body se destructure karein
+
         const { id, title, priority, status, dueDate, description } = req.body;
 
-        // Agar dueDate optional rakhni hai toh validation se hata dein, 
-        // ya phir frontend se dueDate bheji jaye.
         if (!title || !description) {
             return res.status(400).json({ message: "Title and description are required", isError: true });
         }
 
         const todoUpdated = { title, priority, status, dueDate, description };
 
-        // Sahi tarika: Filter ({ id, uid }) aur update data ({ $set: todoUpdated }) dein
         const todo = await Todos.findOneAndUpdate(
             { id, uid },
             { $set: todoUpdated },
-            { new: true }
+            { returnDocument: 'after' }
         );
 
         if (!todo) {
@@ -124,10 +124,15 @@ router.delete("/delete/single/todo/:id", verifyToken, async (req, res) => {
 
         const { id } = req.params;
 
-        const todoFind = await Todos.findOne({ uid, id });
+        const todo = await Todos.findOne({ uid, id });
 
-        if (!todoFind) {
+        if (!todo) {
             return res.status(404).json({ message: "Todo not found", isError: true });
+        }
+
+        // Delete image from Cloudinary
+        if (todo.imagePublicId) {
+            await cloudinary.uploader.destroy(todo.imagePublicId);
         }
 
         const deleteTodo = await Todos.findOneAndDelete({ uid, id });
