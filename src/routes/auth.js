@@ -60,20 +60,20 @@ router.post("/login", async (req, res) => {
         const user = await Users.findOne({ email })
 
         if (!user) {
-            return res.status(404).json({ message: "User does not exist", isError: true })
+            return res.status(404).json({ message: "Invalid email or password", isError: true })
         }
 
         const userPassword = user.password
 
-        const correctPassword = await bcrypt.compare(password, userPassword)
+        const verifyPassword = await bcrypt.compare(password, userPassword)
 
-        if (!correctPassword) {
+        if (!verifyPassword) {
             return res.status(401).json({ message: "Invalid email or password", isError: true })
         }
 
         const uid = user.uid
 
-        const token = await jwt.sign({ uid }, `${SECRET_KEY}`, { expiresIn: "2h" })
+        const token = await jwt.sign({ uid }, `${SECRET_KEY}`, { expiresIn: "1d" })
 
         return res.status(200).json({ message: "A user successfully login", token, isError: false })
 
@@ -95,7 +95,7 @@ router.get("/user", verifyToken, async (req, res) => {
         const user = await Users.findOne({ uid }).select("-password");
 
         if (!user) {
-            return res.status(404).json({ message: "User does not exist", isError: true })
+            return res.status(404).json({ message: "Invalid email or password", isError: true })
         }
 
         return res.status(200).json({ message: "login successful", user, isError: false })

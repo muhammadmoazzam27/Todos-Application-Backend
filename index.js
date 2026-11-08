@@ -9,17 +9,15 @@ const todo = require("./src/routes/todo");
 const app = express();
 
 const PORT = process.env.PORT
-const Auth_API = process.env.Auth_Api;
-const TODO_API = process.env.Todo_Api
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 connectDB();
 
-app.use(`${Auth_API}`, auth);
+app.use("/api/user/auth", auth);
 
-app.use(`${TODO_API}`, todo);
+app.use("/api/user/todo", todo);
 
 app.use("/", (req, res) => {
     res.send("Todos Application");
