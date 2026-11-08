@@ -1,8 +1,15 @@
+const cors = require('cors');
+
+app.use(cors({
+  origin: ["http://localhost:5173", "http://localhost:4173"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
 require("dotenv").config();
 const express = require("express");
 const { connectDB } = require("./src/config/db");
 
-const cors = require("cors");
 const auth = require("./src/routes/auth");
 const todo = require("./src/routes/todo");
 
@@ -10,7 +17,6 @@ const app = express();
 
 const PORT = process.env.PORT
 
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 connectDB();
