@@ -9,12 +9,8 @@ const todo = require("./src/routes/todo");
 const app = express();
 
 app.use(cors({
-    origin: [
-        "https://todos-application-frontend-k4wklxxh6-moazzam-27.vercel.app",
-        "http://localhost:5173",
-        "http://localhost:4173"
-    ],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    origin: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
 }));
